@@ -18,9 +18,14 @@ func NewMemoryRepository() *MemoryRepository {
 
 // Append adds a new event to the in-memory store
 func (r *MemoryRepository) Append(event domain.Event) error {
+	return r.AppendAll([]domain.Event{event})
+}
+
+// Append adds a new event to the in-memory store
+func (r *MemoryRepository) AppendAll(events []domain.Event) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	r.events = append(r.events, event)
+	r.events = append(r.events, events...)
 	return nil
 }
 

@@ -4,7 +4,7 @@ import (
 	"eventstore/domain"
 )
 
-// EventService defines the service interface for handling events
+// EventService defines a application service interface for handling events
 type EventService struct {
 	Repo domain.EventRepository
 }
@@ -17,6 +17,11 @@ func NewEventService(repo domain.EventRepository) *EventService {
 // AppendEvent appends a new event to the repository
 func (s *EventService) AppendEvent(event domain.Event) error {
 	return s.Repo.Append(event)
+}
+
+// AppendEvents appends new events to the repository
+func (s *EventService) AppendEvents(events []domain.Event) error {
+	return s.Repo.AppendAll(events)
 }
 
 // GetEvents retrieves events with optional pagination

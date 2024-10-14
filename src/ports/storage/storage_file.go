@@ -19,17 +19,28 @@ func NewFileRepository(filePath string) *FileRepository {
 
 // Append adds a new event to the file
 func (r *FileRepository) Append(event domain.Event) error {
+	return r.AppendAll([]domain.Event{event})
+}
+
+// Append adds a new event to the file
+func (r *FileRepository) AppendAll(events []domain.Event) error {
 	file, err := os.OpenFile(r.filePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	data, err := json.Marshal(event)
-	if err != nil {
-		return err
+	var b []byte
+
+	for _, event := range events {
+		record, err := json.Marshal(event)
+		if err != nil {
+			return err
+		}
+		b = append(b, record...)
+		b = append(b, '\n')
 	}
-	_, err = file.Write(append(data, '\n'))
+	_, err = file.Write(b)
 	return err
 }
 

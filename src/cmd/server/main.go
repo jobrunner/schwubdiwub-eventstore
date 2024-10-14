@@ -19,7 +19,6 @@ func main() {
 
 	// Initialize and configure HTTP server
 	server := rest.NewRestServer(cfg.ServerAddress, repo)
-	server.ConfigureRoutes()
 
 	// Start the server
 	if err := server.Start(); err != nil {
