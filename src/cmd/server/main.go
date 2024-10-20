@@ -1,24 +1,24 @@
 package main
 
 import (
+	"eventstore/app"
 	"eventstore/config"
-	"eventstore/ports/rest"
-	"eventstore/ports/storage"
+	"eventstore/infra/rest"
+	"eventstore/infra/storage"
 	"log"
 )
 
 func main() {
-	// Load configuration
+
 	cfg := config.LoadConfig()
 
-	// Create repository using StorageFactory
-	repo, err := storage.NewStorageFactory(cfg)
+	repo, err := storage.NewEventStoreRepository(&cfg)
 	if err != nil {
 		log.Fatalf("Error initializing storage: %v", err)
 	}
 
-	// Initialize and configure HTTP server
-	server := rest.NewRestServer(cfg.ServerAddress, repo)
+	service := app.NewEventStoreService(repo)
+	server := rest.NewRestServer(cfg.ServerAddress, service)
 
 	// Start the server
 	if err := server.Start(); err != nil {

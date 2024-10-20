@@ -1,30 +1,50 @@
 package app
 
 import (
-	"eventstore/domain"
+	"context"
+	"eventstore/core"
 )
 
 // EventService defines a application service interface for handling events
-type EventService struct {
-	Repo domain.EventRepository
+type EventStoreService struct {
+	Repo core.StorageRepository
 }
 
 // NewEventService creates a new instance of EventService
-func NewEventService(repo domain.EventRepository) *EventService {
-	return &EventService{Repo: repo}
+func NewEventStoreService(repo core.StorageRepository) *EventStoreService {
+	return &EventStoreService{Repo: repo}
 }
 
 // AppendEvent appends a new event to the repository
-func (s *EventService) AppendEvent(event domain.Event) error {
-	return s.Repo.Append(event)
+func (s *EventStoreService) AppendEvent(ctx context.Context, event core.Event) error {
+	if err := validateEvent(event); err != nil {
+		return err
+	}
+	return s.Repo.Append(ctx, event)
 }
 
 // AppendEvents appends new events to the repository
-func (s *EventService) AppendEvents(events []domain.Event) error {
-	return s.Repo.AppendAll(events)
+func (s *EventStoreService) AppendEvents(ctx context.Context, events []core.Event) error {
+	return s.Repo.AppendAll(ctx, events)
 }
 
 // GetEvents retrieves events with optional pagination
-func (s *EventService) GetEvents(start, limit int) ([]domain.Event, error) {
-	return s.Repo.GetAll(start, limit)
+func (s *EventStoreService) GetEvents(ctx context.Context, start, limit int) ([]core.Event, error) {
+	return s.Repo.GetAll(ctx, start, limit)
+}
+
+func validateEvent(event core.Event) error {
+	if event.MessageId == "" {
+		return core.ErrEventMissingMessageId
+	}
+	if event.EventType == "" {
+		return core.ErrEventMissingEventType
+	}
+	if event.Timestamp == "" {
+		return core.ErrEventMissingTimestamp
+	}
+	if event.Payload == "" {
+		return core.ErrEventMissingPayload
+	}
+	return nil
 }
