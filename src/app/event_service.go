@@ -5,7 +5,7 @@ import (
 	"eventstore/core"
 )
 
-// EventService defines a application service interface for handling events
+// EventService defines an application service interface for handling events
 type EventStoreService struct {
 	Repo core.StorageRepository
 }
